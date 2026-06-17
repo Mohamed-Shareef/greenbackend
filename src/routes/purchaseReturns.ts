@@ -37,19 +37,19 @@ router.get("/:id", async (req, res) => {
 // CREATE purchase return
 router.post("/", async (req, res) => {
   try {
-    const { returnNo, supplierName, date, items, total, reason } = req.body;
+    const { originalBill, supplierName, date, items, total, reason } = req.body;
 
     const purchaseReturn = new PurchaseReturn();
-    purchaseReturn.returnNo = returnNo;
+    purchaseReturn.returnNo = originalBill;
     purchaseReturn.supplierName = supplierName;
     purchaseReturn.date = new Date(date);
     purchaseReturn.total = total;
-    purchaseReturn.reason = reason;
+    purchaseReturn.reason = reason || items?.[0]?.reason || "";
     purchaseReturn.items = items.map((item: any) => {
       const returnItem = new PurchaseReturnItem();
-      returnItem.productName = item.productName;
-      returnItem.quantity = item.quantity;
-      returnItem.unitPrice = item.unitPrice;
+      returnItem.productName = item.product;
+      returnItem.quantity = item.qty;
+      returnItem.unitPrice = item.rate;
       returnItem.amount = item.amount;
       return returnItem;
     });
@@ -64,7 +64,7 @@ router.post("/", async (req, res) => {
 // UPDATE purchase return
 router.put("/:id", async (req, res) => {
   try {
-    const { returnNo, supplierName, date, items, total, reason } = req.body;
+    const { originalBill, supplierName, date, items, total, reason } = req.body;
 
     const purchaseReturn = await AppDataSource.getRepository(PurchaseReturn).findOne({
       where: { id: req.params.id },
@@ -75,11 +75,11 @@ router.put("/:id", async (req, res) => {
       return res.status(404).json({ success: false, message: "Purchase return not found" });
     }
 
-    purchaseReturn.returnNo = returnNo;
+    purchaseReturn.returnNo = originalBill;
     purchaseReturn.supplierName = supplierName;
     purchaseReturn.date = new Date(date);
     purchaseReturn.total = total;
-    purchaseReturn.reason = reason;
+    purchaseReturn.reason = reason || items?.[0]?.reason || "";
 
     // Delete old items
     if (purchaseReturn.items && purchaseReturn.items.length > 0) {

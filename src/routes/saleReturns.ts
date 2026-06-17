@@ -37,19 +37,19 @@ router.get("/:id", async (req, res) => {
 // CREATE sale return
 router.post("/", async (req, res) => {
   try {
-    const { returnNo, customerName, date, items, total, reason } = req.body;
+    const { originalInvoice, customerName, date, items, total, reason } = req.body;
 
     const saleReturn = new SaleReturn();
-    saleReturn.returnNo = returnNo;
+    saleReturn.returnNo = originalInvoice;
     saleReturn.customerName = customerName;
     saleReturn.date = new Date(date);
     saleReturn.total = total;
-    saleReturn.reason = reason;
+    saleReturn.reason = reason || items?.[0]?.reason || "";
     saleReturn.items = items.map((item: any) => {
       const returnItem = new SaleReturnItem();
-      returnItem.productName = item.productName;
-      returnItem.quantity = item.quantity;
-      returnItem.unitPrice = item.unitPrice;
+      returnItem.productName = item.product;
+      returnItem.quantity = item.qty;
+      returnItem.unitPrice = item.rate;
       returnItem.amount = item.amount;
       return returnItem;
     });
@@ -64,7 +64,7 @@ router.post("/", async (req, res) => {
 // UPDATE sale return
 router.put("/:id", async (req, res) => {
   try {
-    const { returnNo, customerName, date, items, total, reason } = req.body;
+    const { originalInvoice, customerName, date, items, total, reason } = req.body;
 
     const saleReturn = await AppDataSource.getRepository(SaleReturn).findOne({
       where: { id: req.params.id },
@@ -75,11 +75,11 @@ router.put("/:id", async (req, res) => {
       return res.status(404).json({ success: false, message: "Sale return not found" });
     }
 
-    saleReturn.returnNo = returnNo;
+    saleReturn.returnNo = originalInvoice;
     saleReturn.customerName = customerName;
     saleReturn.date = new Date(date);
     saleReturn.total = total;
-    saleReturn.reason = reason;
+    saleReturn.reason = reason || items?.[0]?.reason || "";
 
     // Delete old items
     if (saleReturn.items && saleReturn.items.length > 0) {
