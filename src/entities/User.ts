@@ -1,50 +1,49 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  ManyToOne,
-  JoinColumn,
+  Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn,
 } from "typeorm";
 import { Tenant } from "./Tenant";
 
 export enum UserRole {
-  ADMIN = "admin",
+  OWNER   = "owner",
+  ADMIN   = "admin",
   MANAGER = "manager",
   CASHIER = "cashier",
+  SALESMAN= "salesman",
 }
 
 @Entity("users")
 export class User {
   @PrimaryGeneratedColumn("uuid")
-  id: string;
+  id!: string;
 
   @Column({ type: "uuid" })
-  tenantId: string;
+  tenantId!: string;
 
   @ManyToOne(() => Tenant, (tenant) => tenant.users, { onDelete: "CASCADE" })
   @JoinColumn({ name: "tenantId" })
-  tenant: Tenant;
+  tenant!: Tenant;
 
   @Column({ type: "varchar" })
-  name: string;
+  name!: string;
 
   @Column({ type: "varchar" })
-  email: string;
+  email!: string;
 
   @Column({ type: "varchar" })
-  password: string;
+  password!: string;
 
   @Column({ type: "varchar", default: UserRole.CASHIER })
-  role: UserRole;
+  role!: UserRole;
 
   @Column({ type: "boolean", default: true })
-  isActive: boolean;
+  isActive!: boolean;
+
+  @Column({ type: "timestamp", nullable: true })
+  lastLogin!: Date;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt!: Date;
 }

@@ -25,6 +25,9 @@ export class PurchaseOrder {
   @Column("decimal", { precision: 10, scale: 2 })
   total!: number;
 
+  @Column("varchar", { default: "pending" })
+  status!: string;
+
   @OneToMany(() => OrderItem, (item) => item.purchaseOrder, {
     cascade: true,
   })
